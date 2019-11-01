@@ -15,7 +15,20 @@ class Sudoku {
     }
 
     def resolver(a: Array[Array[Int]]): Array[Array[Int]] = {
-        backTrack(a)
+        //backTrack(a)
+
+        val l = possibleNumbers(a)
+
+        for((v1, x) <- l.zipWithIndex; (v2, y) <- v1.zipWithIndex){
+            println(s"($x,$y) => ${v2.view.mkString(",")}")
+        }
+
+        val m = groupNumbers(a)
+        for((k, v)<-m; e<-v)
+            println(s"$k = { ${e.view} }")
+
+
+
         a
     }
 
@@ -52,7 +65,8 @@ class Sudoku {
         (1 to size).diff((row(a, x) ++ column(a, y) ++ cell(a, x, y)).distinct).toArray
 
     private def possibleNumbers(a: Array[Array[Int]]): Array[Array[Array[Int]]] =
-        (for(x<-0 until size; y <- 0 until size) yield if (a(x)(y) == 0) availableNumbers(a, x, y) else Array(0)).toArray.grouped(size).toArray
+        (for(x<-0 until size; y <- 0 until size) yield
+            if (a(x)(y) == 0) availableNumbers(a, x, y) else Array(0)).toArray.grouped(size).toArray
 
     private def possibleNumbersOrder(a: Array[Array[Int]]): Array[Array[Array[Int]]] = {
         var p: Array[Array[Array[Int]]] = Array[Array[Array[Int]]]()
@@ -60,6 +74,18 @@ class Sudoku {
             p +:= Array(Array(x, y), v1)
         p
     }
+
+    private def groupNumbers(a:Array[Array[Int]]): collection.mutable.Map[Int, Array[Array[Int]]] = {
+        val m = collection.mutable.Map[Int, Array[Array[Int]]]()
+
+        for( i <- (1 to 9);  (v, x) <- a.zipWithIndex; (v1, y) <- v.zipWithIndex if v1 == i) {
+            println(s"($x,$y) => $v1")
+            m(i) = Array(Array(x, y))
+        }
+        m
+    }
+
+
 
     private def addNumberRandom(i:Int, pos:Array[Int], a: Array[Array[Int]]): Array[Array[Int]] = {
         if (!empty(a)) {
@@ -81,14 +107,20 @@ class Sudoku {
             new Array[Array[Int]](0)
     }
 
+    private def gridEmpty(a: Array[Array[Int]]): Boolean = a.iterator.flatMap(_.iterator).filter(_ == 0).iterator.isEmpty
+
     private def backTrack(a: Array[Array[Int]]): Boolean = {
+        show(a)
         val l = possibleNumbersOrder(a).sortBy(_(1).length)
-        if(l.length > 0 ){
+        if (l.length > 0) {
             breakable {
-                for( e <- l; n <- e(1)) {
+                for (e <- l; n <- e(1)) {
                     val va = a(e(0)(0))(e(0)(1))
                     a(e(0)(0))(e(0)(1)) = n
-                    if(backTrack(a)) break
+                    if (backTrack(a) && gridEmpty(a)) {
+                        show(a)
+                        break
+                    }
                     else {
                         a(e(0)(0))(e(0)(1)) = va
                         false
@@ -96,7 +128,29 @@ class Sudoku {
                 }
             }
         }
+
         true
     }
 
+//    private def backTrack(a: Array[Array[Int]]): Boolean = {
+//        for (x <- 0 until size; y <- 0 until size) {
+//            if (a(x)(y) == 0){
+//                for (i <- availableNumbers(a, x, y)){
+//                    a(x)(y) = i
+//                    if(backTrack(a)) {
+//                        return true
+//                    }
+//
+//
+//                }
+//                a(x)(y) = 0
+//                false
+//            }else{
+//                show(a)
+//
+//            }
+//        }
+//
+//        true
+//    }
 }
