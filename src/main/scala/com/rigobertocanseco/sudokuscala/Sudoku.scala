@@ -1,5 +1,6 @@
 package com.rigobertocanseco.sudokuscala
 
+import scala.collection.mutable.ArrayBuffer
 import util.control.Breaks._
 
 class Sudoku {
@@ -24,8 +25,8 @@ class Sudoku {
         }
 
         val m = groupNumbers(a)
-        for((k, v)<-m; e<-v)
-            println(s"$k = { ${e.view} }")
+        for((k, v)<-m)
+            println(s"$k = { ${ for( e <- v) yield e.view} }")
 
 
 
@@ -75,12 +76,24 @@ class Sudoku {
         p
     }
 
-    private def groupNumbers(a:Array[Array[Int]]): collection.mutable.Map[Int, Array[Array[Int]]] = {
-        val m = collection.mutable.Map[Int, Array[Array[Int]]]()
+    private def findNumber(a:Array[Array[Int]], i:Int): Array[Array[Int]] =
+        (for(x<-0 until size; y <- 0 until size; if a(x)(y) == i) yield Array(x,y)).toArray
 
-        for( i <- (1 to 9);  (v, x) <- a.zipWithIndex; (v1, y) <- v.zipWithIndex if v1 == i) {
-            println(s"($x,$y) => $v1")
-            m(i) = Array(Array(x, y))
+    private def mappingNumber(a: Array[Array[Int]], i: Int): Array[Array[Int]] =
+         
+
+    private def groupNumbers(a:Array[Array[Int]]): collection.mutable.Map[Int, ArrayBuffer[Array[Int]]] = {
+        val m = collection.mutable.Map[Int, ArrayBuffer [Array[Int]]]()
+
+        for( i <- 1 to 9) {
+            val ar = findNumber(a, i)
+            println(s"$i")
+            for(e <- ar) println(s"${e.view}")
+//            println(s"($x,$y) => $v1")
+//            if(!m.contains(i))
+//                m(i) = ArrayBuffer(Array(x, y))
+//            else
+//                m(i) +:= Array(x, y)
         }
         m
     }
