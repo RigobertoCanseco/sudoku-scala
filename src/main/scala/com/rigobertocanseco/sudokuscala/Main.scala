@@ -68,7 +68,8 @@ object Main {
             Array(0,1,7,0,0,0,0,0,0),
             Array(0,0,0,0,3,6,0,4,0))
 
-        println(a.iterator.flatMap(_.iterator).filter(_ == 0).iterator.nonEmpty)
+
+        //println(a.iterator.flatMap(_.iterator).filter(_ == 0).iterator.nonEmpty)
         //.flatMap(_.iterator).filter(_ != 0)
         sudoku.show(a)
 
