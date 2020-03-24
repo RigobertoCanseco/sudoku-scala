@@ -1,7 +1,7 @@
 package com.rigobertocanseco.sudokuscala
 
 import scala.collection.mutable.ArrayBuffer
-import util.control.Breaks._
+import scala.util.control.Breaks._
 
 class Sudoku {
     private val SIZE: Int = 9
