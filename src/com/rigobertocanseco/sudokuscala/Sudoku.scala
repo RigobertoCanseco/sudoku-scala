@@ -30,8 +30,8 @@ class Sudoku {
             println(s"($x,$y) => ${v2.view.mkString(",")}")
         }
 
-        println("Row")
-        row(l,3).foreach( x => println(x.view.mkString(",")))
+        val g0 = reduce(l)
+
         println("una solucion")
         val q = onlyPossibleNumber(a)
         show(q)
@@ -81,7 +81,9 @@ class Sudoku {
      * @param a Sudoku grid Array[Int][Int]
      * @return Boolean
      */
-    private def empty(a: Array[Array[Int]]): Boolean = !(for (x <- 0 until SIZE; y <- 0 until SIZE) yield a(x)(y)).contains(0)
+    private def empty(a: Array[Array[Int]]): Boolean =
+        //a.iterator.flatMap(_.iterator).filter(_ == 0).iterator.isEmpty
+        !(for (x <- 0 until SIZE; y <- 0 until SIZE) yield a(x)(y)).contains(0)
 
     /**
      * Get a row of x position of a sudoku grid
@@ -115,10 +117,7 @@ class Sudoku {
      * @param y
      * @return
      */
-    private def column(a: Array[Array[Int]], y: Int): Array[Int] = (for (i <- 0 until SIZE) yield a(i)(y)).toArray
-
-    private def cell(a: Array[Array[Int]], x1: Int, y1: Int, x2: Int, y2: Int): Array[Int] =
-        (for (x <- x1 to x2; y <- y1 to y2) yield a(x)(y)).toArray
+    private def column(a: Array[Array[Array[Int]]], y: Int): Array[Array[Int]] = (for (i <- 0 until SIZE) yield a(i)(y)).toArray
 
     /**
      * Get a mini grid of column x and row y of a sudoku grid
@@ -131,6 +130,15 @@ class Sudoku {
     private def miniGrid(a: Array[Array[Int]], x: Int, y: Int): Array[Int] =
         (for (x1 <- (x / SIZE_SQRT * SIZE_SQRT) to x / SIZE_SQRT * SIZE_SQRT + 2;
               y1 <- y / SIZE_SQRT * SIZE_SQRT to y / SIZE_SQRT * SIZE_SQRT + 2) yield a(x1)(y1)).toArray
+
+    private def miniGrid(a: Array[Array[Array[Int]]], x: Int, y: Int): Array[Array[Int]] =
+        (for (x1 <- (x / SIZE_SQRT * SIZE_SQRT) to x / SIZE_SQRT * SIZE_SQRT + 2;
+              y1 <- y / SIZE_SQRT * SIZE_SQRT to y / SIZE_SQRT * SIZE_SQRT + 2) yield a(x1)(y1)).toArray
+
+
+    private def cell(a: Array[Array[Int]], x1: Int, y1: Int, x2: Int, y2: Int): Array[Int] =
+        (for (x <- x1 to x2; y <- y1 to y2) yield a(x)(y)).toArray
+
 
     /**
      * Sudoku grid join with a solved sudoku grid
@@ -163,12 +171,44 @@ class Sudoku {
         (for (x <- 0 until SIZE; y <- 0 until SIZE) yield if (a(x)(y) == 0) availableNumbers(a, x, y) else Array(0))
             .toArray.grouped(SIZE).toArray
 
+    private def reduce(a: Array[Array[Array[Int]]]): Array[Array[Int]] = {
+        println("ROW 3")
+        val r1 = row(a,3)
+        r1.foreach( x => println(x.view.mkString(",")))
+        (1 to SIZE).foreach{
+            i => r1.iterator.flatMap(_.iterator).filter(_ == i).iterator.size == 1
+        }
+
+        println("Column")
+        val c1 = column(a,4)
+        c1.foreach( x => println(x.view.mkString(",")))
+        (1 to SIZE).foreach({
+            i => c1.iterator.flatMap(_.iterator).filter(_ == i).iterator.size == 1
+        })
+
+
+
+        println("MiniGrid")
+        val g1 = miniGrid(a,3,4)
+        g1.foreach( x => println(x.view.mkString(",")))
+        (1 to SIZE).foreach{
+            i => g1.iterator.flatMap(_.iterator).filter(_ == i).iterator.size == 1
+        }
+
+
+        r1
+        /*
+
+        */
+    }
+
+
     /**
      *
      * @param a
      * @return
      */
-    private def onlyPossibleNumber(a: Array[Array[Int]]): Array[Array[Int]] = {
+    private def onlyPossibleNumber(a: Array[Array[Int]]): Array[Array[Int]] =
         (for (x <- 0 until SIZE; y <- 0 until SIZE) yield
             if (a(x)(y) == 0) {
                 val pn = availableNumbers(a, x, y)
@@ -177,7 +217,7 @@ class Sudoku {
                 else 0
             } else 0
         ).toArray.grouped(SIZE).toArray
-    }
+
 
     /**
      *
