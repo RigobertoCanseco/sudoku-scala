@@ -73,7 +73,12 @@ object Main {
         //.flatMap(_.iterator).filter(_ != 0)
         sudoku.show(a)
 
-        val solution = sudoku.resolver(a)
-        sudoku.show(solution)
+
+        val g1 = sudoku.resolver(a)
+        sudoku.show(g1)
+        for ((v1, x) <- sudoku.allPossibleNumbers(g1).zipWithIndex; (v2, y) <- v1.zipWithIndex) {
+            println(s"($x,$y) => ${v2.view.mkString(",")}")
+        }
+
     }
 }
