@@ -20,40 +20,12 @@ class Sudoku {
         array
     }
 
-    def resolver(a: Array[Array[Int]]): Array[Array[Int]] = join(a, reduce(allPossibleNumbers(a)))
-
-    //backTrack(a)
-
-        //val l = possibleNumbersOrder(a)
-
-        //for ((v1, x) <- l.zipWithIndex; (v2, y) <- v1.zipWithIndex) {
-        //    println(s"($x,$y) => ${v2.view.mkString(",")}")
-        //}
-
-        //println("New grid")
-        //show(g0)
-
-        //println("una solucion")
-        //val q = onlyPossibleNumber(a)
-        //show(q)
-
-        //show(a1)
-
-
-        //println(a.map(_.map(_.equals(0))).view)
-        //for (i <- 0 until SIZE; j<- 0 until SIZE) yield if(q(i)(j) != 0) a(i)(j) = q(i)(j)
-        //show(a)
-
-        /*
-        val m = groupNumbers(a)
-        for ((k, v) <- m)
-            println(s"$k = { ${for (e <- v) yield e.view} }")
-        println("mapping")
-        val s = mappingNumber(a, 1)
-        for (e <- s) println(s"${e.view}")
-        */
-
-
+    def resolver(a: Array[Array[Int]]): Array[Array[Int]] = {
+        val r = reduce(allPossibleNumbers(a))
+        if(solutions(r)){
+            resolver(join(a, r))
+        } else a
+    }
 
     /**
      *
@@ -80,9 +52,10 @@ class Sudoku {
      * @param a Sudoku grid Array[Int][Int]
      * @return Boolean
      */
-    private def empty(a: Array[Array[Int]]): Boolean =
-        //a.iterator.flatMap(_.iterator).filter(_ == 0).iterator.isEmpty
-        !(for (x <- 0 until SIZE; y <- 0 until SIZE) yield a(x)(y)).contains(0)
+    private def empty(a: Array[Array[Int]]): Boolean = a.iterator.flatMap(_.iterator).filter(_ == 0).iterator.isEmpty
+        //!(for (x <- 0 until SIZE; y <- 0 until SIZE) yield a(x)(y)).contains(0)
+
+    private def solutions(a: Array[Array[Int]]): Boolean = a.iterator.flatMap(_.iterator).filter(_ != 0).iterator.nonEmpty
 
     /**
      * Get a row of x position of a sudoku grid
@@ -138,7 +111,6 @@ class Sudoku {
     private def cell(a: Array[Array[Int]], x1: Int, y1: Int, x2: Int, y2: Int): Array[Int] =
         (for (x <- x1 to x2; y <- y1 to y2) yield a(x)(y)).toArray
 
-
     /**
      * Sudoku grid join with a solved sudoku grid
      *
@@ -173,76 +145,21 @@ class Sudoku {
     private def reduce(a: Array[Array[Array[Int]]]): Array[Array[Int]] = {
         val array = Array.fill(SIZE, SIZE)(0)
         for (x <- 0 until SIZE; y <- 0 until SIZE){
-
             if(a(x)(y).length == 1 && a(x)(y)(0) != 0)
                 array(x)(y) = a(x)(y)(0)
             else if(a(x)(y).length > 1)
                 (1 to SIZE).foreach {
                     i => {
-                        if( (row(a, x).iterator.flatMap(_.iterator).filter(_ == i).iterator.size == 1 ||
-                            column(a, y).iterator.flatMap(_.iterator).filter(_ == i).iterator.size == 1 ||
-                            miniGrid(a, x, y).iterator.flatMap(_.iterator).filter(_ == i).iterator.size == 1
-                            )
-                            && a(x)(y).contains(i))
-                            {
-                            //print(s"[$x,$y] => ")
-                            //a(x)(y).foreach{ x => print(s"$x ") }
-                            //println()
+                        if(a(x)(y).contains(i) &&
+                            (row(a, x).iterator.flatMap(_.iterator).filter(_ == i).iterator.size == 1 ||
+                                column(a, y).iterator.flatMap(_.iterator).filter(_ == i).iterator.size == 1 ||
+                                miniGrid(a, x, y).iterator.flatMap(_.iterator).filter(_ == i).iterator.size == 1))
                             array(x)(y) = i
-                            //println(s"array($x)($y) = $i")
-
-                            }
                     }
                 }
         }
-
-
         array
-
-        /*
-
-        println("ROW 3")
-        val r1 = row(a,3)
-        r1.foreach( x => println(x.view.mkString(",")))
-
-
-        println("Column")
-        val c1 = column(a,4)
-        c1.foreach( x => println(x.view.mkString(",")))
-        (1 to SIZE).foreach({
-            i => c1.iterator.flatMap(_.iterator).filter(_ == i).iterator.size == 1
-        })
-
-
-
-        println("MiniGrid")
-        val g1 = miniGrid(a,3,4)
-        g1.foreach( x => println(x.view.mkString(",")))
-        (1 to SIZE).foreach{
-            i => g1.iterator.flatMap(_.iterator).filter(_ == i).iterator.size == 1
-        }
-
-
-        r1
-        */
     }
-
-
-    /**
-     *
-     * @param a
-     * @return
-     */
-    private def onlyPossibleNumber(a: Array[Array[Int]]): Array[Array[Int]] =
-        (for (x <- 0 until SIZE; y <- 0 until SIZE) yield
-            if (a(x)(y) == 0) {
-                val pn = availableNumbers(a, x, y)
-                if (pn.length == 1 && pn(0) != 0)
-                    pn(0)
-                else 0
-            } else 0
-        ).toArray.grouped(SIZE).toArray
-
 
     /**
      *
@@ -338,7 +255,6 @@ class Sudoku {
             new Array[Array[Int]](0)
     }
 
-    private def gridEmpty(a: Array[Array[Int]]): Boolean = a.iterator.flatMap(_.iterator).filter(_ == 0).iterator.isEmpty
 
     private def backTrack(a: Array[Array[Int]]): Boolean = {
         show(a)
@@ -348,7 +264,7 @@ class Sudoku {
                 for (e <- l; n <- e(1)) {
                     val va = a(e(0)(0))(e(0)(1))
                     a(e(0)(0))(e(0)(1)) = n
-                    if (backTrack(a) && gridEmpty(a)) {
+                    if (backTrack(a) && empty(a)) {
                         show(a)
                         break
                     }
