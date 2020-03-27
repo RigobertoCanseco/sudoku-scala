@@ -22,7 +22,7 @@ class Sudoku {
 
     def resolver(a: Array[Array[Int]]): Array[Array[Int]] = {
         val r = reduce(allPossibleNumbers(a))
-        if(solutions(r)){
+        if(haveSolutions(r)){
             resolver(join(a, r))
         } else a
     }
@@ -55,16 +55,26 @@ class Sudoku {
     private def empty(a: Array[Array[Int]]): Boolean = a.iterator.flatMap(_.iterator).filter(_ == 0).iterator.isEmpty
         //!(for (x <- 0 until SIZE; y <- 0 until SIZE) yield a(x)(y)).contains(0)
 
-    private def solutions(a: Array[Array[Int]]): Boolean = a.iterator.flatMap(_.iterator).filter(_ != 0).iterator.nonEmpty
+    private def haveSolutions(a: Array[Array[Int]]): Boolean = a.iterator.flatMap(_.iterator).filter(_ != 0).iterator.nonEmpty
+
+    def selectCell(a: Array[Array[Int]], r: Int, c: Int): Array[Array[Int]] = {
+        val g : Array[Array[Int]] = Array()
+        row(a, r).zipWithIndex.foreach(e => print(e))
+        println("")
+        column(a, c).zipWithIndex.foreach(e => print(e))
+        println("")
+        miniGrid(a, 0, 0).zipWithIndex.foreach(e => print(e))
+        g
+    }
 
     /**
      * Get a row of x position of a sudoku grid
      *
      * @param a Sudoku grid Array[Int][Int]
-     * @param x Position
+     * @param r Row
      * @return Array[Int]
      */
-    private def row(a: Array[Array[Int]], x: Int): Array[Int] = (for (i <- 0 until SIZE) yield a(x)(i)).toArray
+    private def row(a: Array[Array[Int]], r: Int): Array[Int] = (for (i <- 0 until SIZE) yield a(r)(i)).toArray
 
     /**
      *

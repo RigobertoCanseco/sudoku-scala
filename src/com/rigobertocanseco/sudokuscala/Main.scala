@@ -76,9 +76,10 @@ object Main {
 
         val g1 = sudoku.resolver(a)
         sudoku.show(g1)
-        for ((v1, x) <- sudoku.allPossibleNumbers(g1).zipWithIndex; (v2, y) <- v1.zipWithIndex) {
-            println(s"($x,$y) => ${v2.view.mkString(",")}")
-        }
+        (for ((v1, x) <- sudoku.allPossibleNumbers(g1).zipWithIndex; (v2, y) <- v1.zipWithIndex)
+            yield Array(Array(x, y), v2)).filter(_(1).length > 1).sortBy(_(1).length)
+            .foreach( v => println(v(0).view.mkString(",") + "=>" + v(1).view.mkString(",")))
 
+        sudoku.selectCell(g1, 0, 0)
     }
 }
