@@ -68,18 +68,19 @@ object Main {
             Array(0,1,7,0,0,0,0,0,0),
             Array(0,0,0,0,3,6,0,4,0))
 
-
         //println(a.iterator.flatMap(_.iterator).filter(_ == 0).iterator.nonEmpty)
         //.flatMap(_.iterator).filter(_ != 0)
-        sudoku.show(a)
+        sudoku.create(a)
+        sudoku.printGrid()
+
+//        val g1 = sudoku.resolver(a)
+//        sudoku.show(g1)
+//        (for ((v1, x) <- sudoku.allPossibleNumbers(g1).zipWithIndex; (v2, y) <- v1.zipWithIndex)
+//            yield Array(Array(x, y), v2)).filter(_(1).length > 1).sortBy(_(1).length)
+//            .foreach( v => println(v(0).view.mkString(",") + "=>" + v(1).view.mkString(",")))
+//
+//        sudoku.selectCell(g1, 0, 0)
 
 
-        val g1 = sudoku.resolver(a)
-        sudoku.show(g1)
-        (for ((v1, x) <- sudoku.allPossibleNumbers(g1).zipWithIndex; (v2, y) <- v1.zipWithIndex)
-            yield Array(Array(x, y), v2)).filter(_(1).length > 1).sortBy(_(1).length)
-            .foreach( v => println(v(0).view.mkString(",") + "=>" + v(1).view.mkString(",")))
-
-        sudoku.selectCell(g1, 0, 0)
     }
 }

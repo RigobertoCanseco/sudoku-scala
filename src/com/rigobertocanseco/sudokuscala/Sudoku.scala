@@ -3,9 +3,66 @@ package com.rigobertocanseco.sudokuscala
 import scala.collection.mutable.ArrayBuffer
 import scala.util.control.Breaks._
 
+case class Cell(v:Int, n:Array[Int]) {
+    def value:Int = v
+    def numbers: Array[Int] = n
+}
+
+case class Row(c: Array[Cell]){
+    def cells: Array[Cell] = c
+}
+
+case class Column(c: Array[Cell]){
+    def cells: Array[Cell] = c
+}
+
+case class MiniGrid(c :Array[Cell]){
+    def cells: Array[Cell] = c
+}
+
+class Grid(a: Array[Array[Int]]) {
+    private final val size: Int = 9
+    private val cells: Array[Array[Cell]] =
+        (for (row <- 0 until size; column <- 0 until size) yield
+            if (a(row)(column) == 0)
+                Cell(0, (1 to size).diff(((for (i <- 0 until size) yield a(row)(i)).toArray ++
+                    (for (i <- 0 until size) yield a(i)(column)).toArray ++
+                    (for (r <- (row / size) to row / size + 2; c <- column / size to column / size + 2) yield a(r)(c)).toArray)
+                    .distinct).toArray)
+            else
+                Cell(a(row)(column), Array())
+        ).toArray.grouped(size).toArray
+
+    def getCell(row:Int, col:Int):Cell = cells(row)(col)
+
+    def getRow(row: Int): Row = Row((for (i <- 0 until size) yield cells(row)(i)).toArray)
+
+    def getColumn(column: Int): Column = Column((for (i <- 0 until size) yield cells(i)(column)).toArray)
+
+    def getMiniGrid(row: Int, column: Int): MiniGrid =
+        MiniGrid((for (r <- (row / size) to row / size + 2; c <- column / size to column / size + 2)
+            yield cells(r)(c)).toArray)
+
+    def _print(): Unit = {
+        println(" =========================================")
+        for (i <- 0 until size) {
+            for (j <- 0 until size) {
+                if (j % 3 == 0)
+                    print(s" || ${if (cells(i)(j).value == 0) "*" else cells(i)(j).value}")
+                else print(s" | ${if (cells(i)(j).value == 0) "*" else cells(i)(j).value}")
+            }
+            print(" || ")
+            println()
+            if ((i + 1) % 3 == 0)
+                println(" =========================================")
+        }
+    }
+}
+
 class Sudoku {
     private val SIZE: Int = 9
     private val SIZE_SQRT: Int = (scala.math.sqrt(SIZE)).toInt
+    private var grid: Grid = null
 
     def Sudoku(): Unit = {}
 
@@ -20,30 +77,22 @@ class Sudoku {
         array
     }
 
+    def create(array: Array[Array[Int]]): Unit = {
+        grid = new Grid(array)
+    }
+
     def resolver(a: Array[Array[Int]]): Array[Array[Int]] = {
+        this.grid = new Grid(a)
+
         val r = reduce(allPossibleNumbers(a))
+
         if(haveSolutions(r)){
             resolver(join(a, r))
         } else a
     }
 
-    /**
-     *
-     * @param a
-     */
-    def show(a: Array[Array[Int]]): Unit = {
-        println(" =========================================")
-        for (i <- 0 until SIZE) {
-            for (j <- 0 until SIZE) {
-                if (j % SIZE_SQRT == 0)
-                    print(s" || ${if (a(i)(j) == 0) "*" else a(i)(j)}")
-                else print(s" | ${if (a(i)(j) == 0) "*" else a(i)(j)}")
-            }
-            print(" || ")
-            println()
-            if ((i + 1) % SIZE_SQRT == 0)
-                println(" =========================================")
-        }
+    def printGrid(): Unit = {
+        this.grid._print()
     }
 
     /**
@@ -64,6 +113,8 @@ class Sudoku {
         column(a, c).zipWithIndex.foreach(e => print(e))
         println("")
         miniGrid(a, 0, 0).zipWithIndex.foreach(e => print(e))
+
+
         g
     }
 
@@ -266,28 +317,28 @@ class Sudoku {
     }
 
 
-    private def backTrack(a: Array[Array[Int]]): Boolean = {
-        show(a)
-        val l = possibleNumbersOrder(a).sortBy(_ (1).length)
-        if (l.length > 0) {
-            breakable {
-                for (e <- l; n <- e(1)) {
-                    val va = a(e(0)(0))(e(0)(1))
-                    a(e(0)(0))(e(0)(1)) = n
-                    if (backTrack(a) && empty(a)) {
-                        show(a)
-                        break
-                    }
-                    else {
-                        a(e(0)(0))(e(0)(1)) = va
-                        false
-                    }
-                }
-            }
-        }
-
-        true
-    }
+//    private def backTrack(a: Array[Array[Int]]): Boolean = {
+//        show(a)
+//        val l = possibleNumbersOrder(a).sortBy(_ (1).length)
+//        if (l.length > 0) {
+//            breakable {
+//                for (e <- l; n <- e(1)) {
+//                    val va = a(e(0)(0))(e(0)(1))
+//                    a(e(0)(0))(e(0)(1)) = n
+//                    if (backTrack(a) && empty(a)) {
+//                        show(a)
+//                        break
+//                    }
+//                    else {
+//                        a(e(0)(0))(e(0)(1)) = va
+//                        false
+//                    }
+//                }
+//            }
+//        }
+//
+//        true
+//    }
 
     //    private def backTrack(a: Array[Array[Int]]): Boolean = {
     //        for (x <- 0 until size; y <- 0 until size) {
