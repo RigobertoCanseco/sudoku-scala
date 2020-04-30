@@ -37,10 +37,16 @@ class Grid(a: Array[Array[Int]]) {
           ).toArray.distinct.sortWith(_ > _)(0)
       ).toArray.grouped(size).toArray)
 
+  def backTrack(): Unit = {
+    //this.cells.zipWithIndex.iterator.flatMap(_._1.iterator).zipWithIndex
+      //.flatMap(_.iterator).filter(_.options.length>=0)//.sortWith(_.options.length < _.options.length)
+      //.foreach(c=> println(c.options.view))
+  }
+
   override def equals(obj: Any): Boolean = {
     val grid: Grid = obj.asInstanceOf[Grid]
-    if ((for (row <- 0 until this.size; col <- 0 until this.size) yield
-      if (this.cells(row)(col).value == grid.cells(row)(col).value) 1).length == this.size*this.size ) true
+    if ( (for (row <- 0 until this.size; col <- 0 until this.size) yield
+      if (this.cells(row)(col).value == grid.cells(row)(col).value) 1 else 0).count(_==1) == this.size*this.size ) true
     else false
   }
 
