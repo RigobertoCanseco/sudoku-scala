@@ -26,15 +26,16 @@ class Sudoku(){
     this.grid = new Grid(array)
   }
 
-  def getSolutions: Iterable[Grid] =
-    val seq: Seq[Grid]
-    solver(this.grid, seq)
+  def getSolutions: Iterable[Grid] = solver(this.grid)
 
-  def solver(grid: Grid, seg:Seq): Array[Grid] = {
+  def solver(grid: Grid): Iterable[Grid] = {
     val nextGrid: Grid = grid.reduce()
-    if(!nextGrid.equals(grid))
-      solver(grid.reduce())
-    nextGrid
+
+    if(!nextGrid.equals(grid)) {
+      Array(nextGrid) ++ solver(nextGrid)
+    } else {
+      Array(nextGrid)
+    }
   }
 
   def printGrid(): Unit = {
