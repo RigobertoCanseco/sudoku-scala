@@ -51,8 +51,6 @@ package com.rigobertocanseco.sudokuscala
 
 object Main {
   def main(args: Array[String]): Unit = {
-    //val a = sudoku.create()
-
     val a = Array(
       Array(8, 5, 0, 0, 0, 2, 4, 0, 0),
       Array(7, 2, 0, 0, 0, 0, 0, 0, 9),
@@ -64,27 +62,27 @@ object Main {
       Array(0, 1, 7, 0, 0, 0, 0, 0, 0),
       Array(0, 0, 0, 0, 3, 6, 0, 4, 0))
 
-    //println(a.iterator.flatMap(_.iterator).filter(_ == 0).iterator.nonEmpty)
-    //.flatMap(_.iterator).filter(_ != 0)
-
     val sudoku: Sudoku = new Sudoku()
     sudoku.create(a)
-    sudoku.getSolutions()
     sudoku.printGrid()
 
-    val grid: Grid = new Grid(a)
-    println(grid.toString())
-    val grid2: Grid = grid.reduce()
-    println(grid2.toString())
+    sudoku.getSolutions.foreach(s => {
+      println(s.toString)
+      //println(s.cells.map(e=>e.map(e=>e.options)).iterator.flatMap(_.iterator).filter(_ == 1).iterator.size)
+      //s.cells.flatMap(_.iterator).filter(_.options.length>0).sortWith(_.options.length < _.options.length).foreach(c=> println(c.options.view))
 
-    //        val g1 = sudoku.resolver(a)
-    //        sudoku.show(g1)
-    //        (for ((v1, x) <- sudoku.allPossibleNumbers(g1).zipWithIndex; (v2, y) <- v1.zipWithIndex)
-    //            yield Array(Array(x, y), v2)).filter(_(1).length > 1).sortBy(_(1).length)
-    //            .foreach( v => println(v(0).view.mkString(",") + "=>" + v(1).view.mkString(",")))
-    //
-    //        sudoku.selectCell(g1, 0, 0)
+      //s.cells.flatMap(_.iterator).filter(_.options.length>=0)//.sortWith(_.options.length < _.options.length)
+      //.foreach(c=> println(c.options.view))
 
+      val a = for ((v, x) <- s.cells.zipWithIndex; (v1, y) <- v.zipWithIndex) yield (x, y, v1.value, v1.options)
+      //a.foreach(c => println(c))
+
+
+      a.filter(_._4.length > 0).sortWith(_._4.length < _._4.length).foreach(c=> println(c._1, c._2, c._3, c._4.view))
+      // println(x,y, (v1.v, v1.options.view))
+      //  s.cells.zip(r).map { case (x, y) => x.zip(y).map { case (i, j) => i + j } }
+
+    })
 
   }
 }
