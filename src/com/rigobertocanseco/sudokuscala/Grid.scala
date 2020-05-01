@@ -1,68 +1,71 @@
 package com.rigobertocanseco.sudokuscala
 
-class Grid(a: Array[Array[Int]]) {
+case class Grid(c: Array[Array[Int]]) {
   final val size: Int = 9
   final val size_sqrt: Int = (scala.math.sqrt(size)).toInt
+  var cells: Array[Array[Cell]] = (for (row <- 0 until size; column <- 0 until size) yield
+    if (c(row)(column) == 0)
+      Cell(0, (1 to size).diff((
+        (for (i <- 0 until size) yield c(row)(i)) ++
+          (for (i <- 0 until size) yield c(i)(column)) ++
+          (for (i <- (row / size_sqrt * size_sqrt) to row / size_sqrt * size_sqrt + 2;
+                j <- column / size_sqrt * size_sqrt to column / size_sqrt * size_sqrt + 2) yield c(i)(j)))
+        .distinct).toArray)
+    else
+      Cell(c(row)(column), Array())
+    ).toArray.grouped(size).toArray
 
-  val cells: Array[Array[Cell]] =
-    (for (row <- 0 until size; column <- 0 until size) yield
-      if (a(row)(column) == 0)
-        Cell(0, (1 to size).diff((
-          (for (i <- 0 until size) yield a(row)(i)) ++
-          (for (i <- 0 until size) yield a(i)(column)) ++
-          (for (r <- (row / size_sqrt * size_sqrt) to row / size_sqrt * size_sqrt + 2;
-                c <- column / size_sqrt * size_sqrt to column / size_sqrt * size_sqrt + 2) yield a(r)(c)))
-          .distinct).toArray)
-      else
-        Cell(a(row)(column), Array())
-      ).toArray.grouped(size).toArray
+  (for (x <- 0 until size; y <- 0 until size) yield
+    if (this.cells(x)(y).options.length == 0)
+      Cell(this.cells(x)(y).value, Array())
+    else
+      (for(i <- 1 to size) yield
+        if (this.cells(x)(y).options.contains(i) &&
+          ((for (i <- 0 until size) yield this.cells(x)(i).options)
+            .toArray.iterator.flatMap(_.iterator).filter(_ == i).iterator.size == 1 ||
+            (for (i <- 0 until size) yield this.cells(i)(y).options)
+              .toArray.iterator.flatMap(_.iterator).filter(_ == i).iterator.size == 1 ||
+            (for (x1 <- (x / size_sqrt * size_sqrt) to x / size_sqrt * size_sqrt + 2;
+                  y1 <- y / size_sqrt * size_sqrt to y / size_sqrt * size_sqrt + 2) yield this.cells(x1)(y1).options)
+              .toArray.iterator.flatMap(_.iterator).filter(_ == i).iterator.size == 1))
+          Cell(i, Array())
+        else Cell(0, Array())
+        ).toArray.distinct.sortWith(_.value > _.value)(0)
+    ).toArray.grouped(size).toArray
 
-  def reduce(): Grid =
-    new Grid(
-      (for (x <- 0 until size; y <- 0 until size) yield
-        if (cells(x)(y).options.length == 0)
-          cells(x)(y).value
-        else
-          (for(i <- 1 to size) yield
-            if (cells(x)(y).options.contains(i) &&
-              ((for (i <- 0 until size) yield cells(x)(i).options)
-                .toArray.iterator.flatMap(_.iterator).filter(_ == i).iterator.size == 1 ||
-                (for (i <- 0 until size) yield cells(i)(y).options)
-                  .toArray.iterator.flatMap(_.iterator).filter(_ == i).iterator.size == 1 ||
-                (for (x1 <- (x / size_sqrt * size_sqrt) to x / size_sqrt * size_sqrt + 2;
-                      y1 <- y / size_sqrt * size_sqrt to y / size_sqrt * size_sqrt + 2) yield cells(x1)(y1).options)
-                  .toArray.iterator.flatMap(_.iterator).filter(_ == i).iterator.size == 1))
-              i
-            else 0
-          ).toArray.distinct.sortWith(_ > _)(0)
-      ).toArray.grouped(size).toArray)
 
-  def backTrack(): Unit = {
-    //this.cells.zipWithIndex.iterator.flatMap(_._1.iterator).zipWithIndex
-      //.flatMap(_.iterator).filter(_.options.length>=0)//.sortWith(_.options.length < _.options.length)
-      //.foreach(c=> println(c.options.view))
-  }
 
-  override def equals(obj: Any): Boolean = {
-    val grid: Grid = obj.asInstanceOf[Grid]
-    if ( (for (row <- 0 until this.size; col <- 0 until this.size) yield
-      if (this.cells(row)(col).value == grid.cells(row)(col).value) 1 else 0).count(_==1) == this.size*this.size ) true
-    else false
-  }
+  val grid: Grid = reduce(this)
 
-  override def toString: String = {
-    var string: String = " =========================================\n"
-    for (i <- 0 until this.size) {
-      for (j <- 0 until this.size) {
-        if (j % 3 == 0)
-          string += s" || ${if (this.cells(i)(j).value == 0) "*" else this.cells(i)(j).value}"
-        else string += s" | ${if (this.cells(i)(j).value == 0) "*" else this.cells(i)(j).value}"
-      }
-      string += " ||\n"
-      if ((i + 1) % 3 == 0)
-        string += " =========================================\n"
+  cells = (for (i <- 0 until size; j <- 0 until size) yield grid.cells(i)(j)).toArray.grouped(size).toArray
+
+  private def reduce(grid: Array[Array[Cell]]): Array[Array[Cell]] = {
+    val nextGrid: Array[Array[Cell]] = grid.reduce()
+
+    if(!nextGrid.equals(grid)) {
+      reduce(nextGrid)
+    } else {
+      //val nextGrid: Grid = backTrack(nextGrid)
+      nextGrid
     }
-    string
   }
 
+  private def reduce(): Array[Array[Cell]] =
+    (for (x <- 0 until size; y <- 0 until size) yield
+      if (this.cells(x)(y).options.length == 0)
+        Cell(this.cells(x)(y).value, Array())
+      else
+        (for(i <- 1 to size) yield
+          if (this.cells(x)(y).options.contains(i) &&
+            ((for (i <- 0 until size) yield this.cells(x)(i).options)
+              .toArray.iterator.flatMap(_.iterator).filter(_ == i).iterator.size == 1 ||
+              (for (i <- 0 until size) yield this.cells(i)(y).options)
+                .toArray.iterator.flatMap(_.iterator).filter(_ == i).iterator.size == 1 ||
+              (for (x1 <- (x / size_sqrt * size_sqrt) to x / size_sqrt * size_sqrt + 2;
+                    y1 <- y / size_sqrt * size_sqrt to y / size_sqrt * size_sqrt + 2) yield this.cells(x1)(y1).options)
+                .toArray.iterator.flatMap(_.iterator).filter(_ == i).iterator.size == 1))
+            Cell(i, Array())
+          else Cell(0, Array())
+          ).toArray.distinct.sortWith(_.value > _.value)(0)
+      ).toArray.grouped(size).toArray
 }
