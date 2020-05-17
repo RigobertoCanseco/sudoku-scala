@@ -66,23 +66,23 @@ object Main {
     sudoku.create(a)
     sudoku.printGrid()
 
-    sudoku.getSolutions.foreach(s => {
-      println(s.toString)
-      //println(s.cells.map(e=>e.map(e=>e.options)).iterator.flatMap(_.iterator).filter(_ == 1).iterator.size)
-      //s.cells.flatMap(_.iterator).filter(_.options.length>0).sortWith(_.options.length < _.options.length).foreach(c=> println(c.options.view))
-
-      //s.cells.flatMap(_.iterator).filter(_.options.length>=0)//.sortWith(_.options.length < _.options.length)
-      //.foreach(c=> println(c.options.view))
-
-      val a = for ((v, x) <- s.cells.zipWithIndex; (v1, y) <- v.zipWithIndex) yield (x, y, v1.value, v1.options)
-      //a.foreach(c => println(c))
-
-
-      a.filter(_._4.length > 0).sortWith(_._4.length < _._4.length).foreach(c=> println(c._1, c._2, c._3, c._4.view))
-      // println(x,y, (v1.v, v1.options.view))
-      //  s.cells.zip(r).map { case (x, y) => x.zip(y).map { case (i, j) => i + j } }
-
-    })
+//    sudoku.getSolutions.foreach(s => {
+//      println(s.toString)
+//      //println(s.cells.map(e=>e.map(e=>e.options)).iterator.flatMap(_.iterator).filter(_ == 1).iterator.size)
+//      //s.cells.flatMap(_.iterator).filter(_.options.length>0).sortWith(_.options.length < _.options.length).foreach(c=> println(c.options.view))
+//
+//      //s.cells.flatMap(_.iterator).filter(_.options.length>=0)//.sortWith(_.options.length < _.options.length)
+//      //.foreach(c=> println(c.options.view))
+//
+//      val a = for ((v, x) <- s.cells.zipWithIndex; (v1, y) <- v.zipWithIndex) yield (x, y, v1.value, v1.options)
+//      //a.foreach(c => println(c))
+//
+//
+//      a.filter(_._4.length > 0).sortWith(_._4.length < _._4.length).foreach(c=> println(c._1, c._2, c._3, c._4.view))
+//      // println(x,y, (v1.v, v1.options.view))
+//      //  s.cells.zip(r).map { case (x, y) => x.zip(y).map { case (i, j) => i + j } }
+//
+//    })
 
   }
 }

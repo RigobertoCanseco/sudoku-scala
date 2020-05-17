@@ -18,25 +18,25 @@ case class MiniGrid(c: Array[Cell]) {
 }
 
 class Sudoku(){
-  private val size: Int = 9
-  private val size_sqrt: Int = (scala.math.sqrt(size)).toInt
-  private var grid: Grid = _
+  val size: Int = 9
+  val size_sqrt: Int = (scala.math.sqrt(size)).toInt
+  var grid: Grid = _
 
   def create(array: Array[Array[Int]]): Unit = {
     this.grid = new Grid(array)
   }
 
-  def getSolutions: Iterable[Grid] = solver(this.grid)
+  //def getSolutions: Iterable[Grid] = solver(this.grid)
 
-  def solver(grid: Grid): Iterable[Grid] = {
-    val nextGrid: Grid = grid.reduce()
-
-    if(!nextGrid.equals(grid)) {
-      Array(nextGrid) ++ solver(nextGrid)
-    } else {
-      Array(nextGrid)
-    }
-  }
+//  def solver(grid: Grid): Iterable[Grid] = {
+//    val nextGrid: Grid = grid.reduce()
+//
+//    if(!nextGrid.equals(grid)) {
+//      Array(nextGrid) ++ solver(nextGrid)
+//    } else {
+//      Array(nextGrid)
+//    }
+//  }
 
   def printGrid(): Unit = {
     println(this.grid.toString)
